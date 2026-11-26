@@ -21,6 +21,7 @@ app.get("/", (req, res) => {
     message: "API RESTful operativa y conectada a MongoDB Atlas",
     endpoints: {
       products: "/api/products",
+      users: "/api/users",
     },
   });
 });
