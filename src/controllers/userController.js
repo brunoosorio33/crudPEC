@@ -1,10 +1,28 @@
 
 import User from "../models/User.js";
 
-// GET /api/users: devuelve todos los usuarios, ordenados por fecha de registro.
+// GET: obtener todos los usuarios o filtrarlos.
 const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find()
+    const filtros = {};
+
+    if (req.query.nombre) {
+      filtros.nombre = { $regex: req.query.nombre, $options: "i" };
+    }
+
+    if (req.query.apellidos) {
+      filtros.apellidos = { $regex: req.query.apellidos, $options: "i" };
+    }
+
+    if (req.query.email) {
+      filtros.email = { $regex: req.query.email, $options: "i" };
+    }
+
+    if (req.query.active !== undefined) {
+      filtros.active = req.query.active === "true";
+    }
+
+    const users = await User.find(filtros)
       .select("-password_hash")
       .sort({ "fecha_registro.date": -1 });
 
@@ -18,7 +36,7 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
-// GET /api/users/:id: busca un usuario por su identificador.
+// GET: buscar un usuario por ID.
 const getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password_hash");
@@ -26,7 +44,7 @@ const getUserById = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Usuario no encontrado con ese ID",
+        message: "Usuario no encontrado",
       });
     }
 
@@ -39,13 +57,12 @@ const getUserById = async (req, res, next) => {
   }
 };
 
-// POST /api/users: crea un usuario con los datos enviados en el cuerpo JSON.
+// POST: crear un usuario.
 const createUser = async (req, res, next) => {
   try {
     const newUser = await User.create(req.body);
-
-    // No devolvemos el campo de contraseña en la respuesta.
     const userData = newUser.toObject();
+
     delete userData.password_hash;
 
     res.status(201).json({
@@ -58,19 +75,19 @@ const createUser = async (req, res, next) => {
   }
 };
 
-// PUT /api/users/:id: actualiza los campos enviados y devuelve el documento nuevo.
+// PUT: actualizar un usuario.
 const updateUser = async (req, res, next) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     ).select("-password_hash");
 
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "No se pudo actualizar: Usuario no encontrado",
+        message: "Usuario no encontrado",
       });
     }
 
@@ -84,7 +101,7 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-// DELETE /api/users/:id: elimina el usuario y devuelve el documento eliminado.
+// DELETE: eliminar un usuario.
 const deleteUser = async (req, res, next) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id)
@@ -93,7 +110,7 @@ const deleteUser = async (req, res, next) => {
     if (!deletedUser) {
       return res.status(404).json({
         success: false,
-        message: "No se pudo eliminar: Usuario no encontrado",
+        message: "Usuario no encontrado",
       });
     }
 
@@ -107,7 +124,6 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-// Exportaciones con nombre para que userRoutes.js pueda importar los controladores.
 export {
   getAllUsers,
   getUserById,
