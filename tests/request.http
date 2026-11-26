@@ -1,47 +1,67 @@
-# Variable de entorno leida por la extension Rest Client de VS Code
-@baseUrl = {{ $dotenv API_URL }}
 
-# Sustitye esta variable por un _id correcto y que exista para probar las rutas por el id
-@productId = 6af9e3704de152f49a042297
+@baseUrl = http://localhost:3000
+@productId = PROD08
 
-### 1.- Crear un nuevo producto (POST)
-# El JSON es el cuerpo de la peticion que recibira req.body que tenemos en los controllers
-POST {{baseUrl}}
-Content-Type: application/json
-{
-    "name": "Monitor Gaming 27 Pulgadas",
-    "description": "Panel IPS 165Hz 1ms QHD",
-    "price": 249.99,
-    "stock": 15,
-    "category": "perifericos"
-}
+### 1. Obtener todos los productos
+GET {{baseUrl}}/api/products
 
-### 2.- Obtener todos los productos (GET)
-# Consulta la coleccion completa 
-GET {{baseUrl}}
-Accept: application/json
 
-### 3.- Obtener un producto, su detalle mediante el id
-# La variable productId se inserta en el segmento dinamico de la ruta
-GET {{baseUrl}}/{{productId}}
-Accept: application/json
+### 2. Obtener un producto por ID
+GET {{baseUrl}}/api/products/{{productId}}
 
-### 4.- Actualizar un producto existente (PUT)
-# Este controlador actualiza solos los campos enviados mediante el findByIdAndUpdate
-PUT {{baseUrl}}/{{productId}}
+
+### 3. Crear un producto
+POST {{baseUrl}}/api/products
 Content-Type: application/json
 
 {
-  "price": 219.99,
-  "stock": 10
+  "_id": "PROD08",
+  "id": "PROD08",
+  "nombre": "Archive Coffee Test",
+  "descripcion": "Cafe de prueba para comprobar la API",
+  "precio": 15.5,
+  "origen": "Colombia",
+  "tipo_tueste": "medio",
+  "formato_gramos": 250,
+  "notas_cata": ["Chocolate", "Caramelo"],
+  "stock": 10,
+  "disponible": true,
+  "fecha_creacion": {
+    "date": "2026-11-26T10:00:00.000Z"
+  },
+  "usuario_creador_id": "USER01"
 }
 
-### 5.- Eliminar un producto (DELETE)
-DELETE {{baseUrl}}/{{productId}}
 
-### 6.- Prueba de error 404
-# Comprobar la respuesta del middleware
-GET {{baseUrl}}/ruta-falsa
+### 4. Actualizar un producto
+PUT {{baseUrl}}/api/products/{{productId}}
+Content-Type: application/json
 
-### 7.- Prueba de error 400/500 (id cpn formatoinvalido
-GET {{baseUrl}}/123-id-invalido
+{
+  "nombre": "Archive Coffee Test Actualizado",
+  "precio": 16.5
+}
+
+
+### 5. Eliminar un producto
+DELETE {{baseUrl}}/api/products/{{productId}}
+
+
+### 6. Obtener todos los usuarios
+GET {{baseUrl}}/api/users
+
+
+### 7. Obtener un usuario por ID
+GET {{baseUrl}}/api/users/USER01
+
+
+### 8. Filtrar productos por origen
+GET {{baseUrl}}/api/products?origen=Colombia
+
+
+### 9. Filtrar usuarios activos
+GET {{baseUrl}}/api/users?active=true
+
+
+### 10. Comprobar una ruta inexistente (404)
+GET {{baseUrl}}/api/ruta-inexistente
